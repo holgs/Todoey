@@ -8,8 +8,9 @@
 
 import UIKit
 import RealmSwift
+import SwipeCellKit
 
-class CategoryViewController: UITableViewController {
+class CategoryViewController: SwipeTableViewController {
 
     let realm = try! Realm()
     
@@ -19,16 +20,19 @@ class CategoryViewController: UITableViewController {
         super.viewDidLoad()
 
         loadCategory()
+                
     }
     
     //MARK: -- TableView datasource methods
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    
 
-        let categoryCell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
+    
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        categoryCell.textLabel?.text = categories?[indexPath.row].name ?? "No categories added"
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
+        cell.textLabel?.text = categories?[indexPath.row].name ?? "No categories added"
         
-        return categoryCell
+        return cell
     }
     
     
@@ -74,6 +78,20 @@ class CategoryViewController: UITableViewController {
     func loadCategory() {
         categories = realm.objects(Category.self)
         tableView.reloadData()
+    }
+    
+    // DELETE
+    override func updateModel(at indexPath: IndexPath) {
+        if let categoryForDeletion = self.categories?[indexPath.row] {
+            do {
+                try self.realm.write {
+                    self.realm.delete((self.categories?[indexPath.row])!)
+                }
+            } catch {
+                print("Error deleting the category \(error)")
+            }
+        }
+
     }
     
     //MARK: -- Add new Category
