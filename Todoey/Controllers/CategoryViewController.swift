@@ -9,6 +9,8 @@
 import UIKit
 import RealmSwift
 import SwipeCellKit
+import ChameleonFramework
+
 
 class CategoryViewController: SwipeTableViewController {
 
@@ -24,14 +26,18 @@ class CategoryViewController: SwipeTableViewController {
     }
     
     //MARK: -- TableView datasource methods
-    
-
-    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = super.tableView(tableView, cellForRowAt: indexPath)
-        cell.textLabel?.text = categories?[indexPath.row].name ?? "No categories added"
-        
+        if let category = categories?[indexPath.row] {
+            
+            cell.textLabel?.text = category.name
+            
+            guard let categoryColour = UIColor(hexString: category.color) else { fatalError() }
+            cell.backgroundColor = categoryColour
+            cell.textLabel?.textColor = ContrastColorOf(categoryColour, returnFlat: true)
+
+        }
         return cell
     }
     
@@ -105,7 +111,7 @@ class CategoryViewController: SwipeTableViewController {
              (action) in
             let newCategory = Category()
             newCategory.name = categoryTextField.text!
-            
+            newCategory.color = UIColor.randomFlat.hexValue()
             self.save(category: newCategory)
             self.tableView.reloadData()
         }
